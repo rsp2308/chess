@@ -20,6 +20,14 @@ app.get("/",(req,res)=>{
     res.render("index");
 });
 
+io.on("connection",(uniquesocket)=>{
+ console.log("connected")
+
+ uniquesocket.on("khana",function(){
+    console.log("churana khaa liya")
+ })
+})
+
 server.listen(3001,function(){
     console.log("listening on port 3001");
 })
