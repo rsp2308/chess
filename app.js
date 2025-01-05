@@ -22,12 +22,52 @@ app.get("/",(req,res)=>{
 
 io.on("connection",(uniquesocket)=>{
  console.log("connected")
+// role assigning
+ if (!players.white){
+    players.white = uniquesocket.id;
+    uniquesocket.emit("playerRole","W");
+ }
+ else if(!players.black){
+    players.black =uniquesocket.id;
+    uniquesocket.emit("playerRole","b")
+ }
+ else{
+    uniquesocket.emit("spectatorRole")
+ }
+ uniquesocket.on("disconnect",function(){
+    if(uniquesocket.id === players.white){
+        delete players.white;
+    }
+     else if(uniquesocket.id === players.black){
+        delete players.black
+    }
+ });
 
- uniquesocket.on("khana",function(){
-    console.log("churana khaa liya")
- })
-})
+uniquesocket.on("move",(move)=>{
+    try{
+        // move error 
+        if(chess.turn() === 'W' && uniquesocket.id !== players.white) return;
+        if(chess.turn() === 'b' && uniquesocket.id !== players.black) return;
 
-server.listen(3001,function(){
-    console.log("listening on port 3001");
+        const result = chess.move(move);
+        if(result){
+            currentPlayer - chess.turn();
+            io.emit("move",move);
+            io.emit("boardState",chess.fen())
+         }
+         else{
+         console.log("Invalid move:",move);
+         uniquesocket.emit("invalidMove",move);
+         }
+    }
+    catch(err){
+        console.log(err);
+        uniquesocket.emit("Invalid move: ", move);
+    }
+});
+
+});
+
+server.listen(3000,function(){
+    console.log("listening on port 3010");
 })
