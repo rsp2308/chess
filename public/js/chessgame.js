@@ -62,6 +62,16 @@ const renderBoard = () => {
       boardElement.appendChild(squareElement);
     });
   });
+
+  if(playerRole==='b'){
+    boardElement.classList.add("flipped");
+}
+else{
+    boardElement.classList.remove("flipped");
+    
+  }
+
+  addDragAndDropHandlers();
 };
 
 const handleMove = (source,target) => {
@@ -90,6 +100,21 @@ const getPieceUnicode = (piece) => {
   };
   return unicodePieces[piece.type] || "";
 };
+
+const addDragAndDropHandlers = () => {
+  const pieces = document.querySelectorAll(".piece");
+  pieces.forEach(piece => {
+    piece.setAttribute("draggable", true);
+    piece.addEventListener("dragstart", (e) => {
+      draggedPiece = piece;
+      sourceSquare = {
+        row: parseInt(piece.parentElement.dataset.row),
+        col: parseInt(piece.parentElement.dataset.col),
+      };
+    });
+  });
+};
+
 socket.on("playerRole",(role)=>{
  playerRole = role;
  renderBoard();
